@@ -59,7 +59,7 @@ set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
 set_location_assignment PIN_146 -to Button0
 set_location_assignment PIN_147 -to Button1
 set_location_assignment PIN_23 -to Clk
-set_location_assignment PIN_60 -to PWM
+set_location_assignment PIN_61 -to PWM
 set_location_assignment PIN_145 -to RstN
 set_location_assignment PIN_135 -to Display[7]
 set_location_assignment PIN_134 -to Display[6]

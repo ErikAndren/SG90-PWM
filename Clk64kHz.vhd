@@ -14,7 +14,7 @@ architecture Behavioral of clk64kHz is
     signal counter : integer range 0 to 780 := 0;
 begin
     freq_divider: process (reset, clk) begin
-        if (reset = '1') then
+        if (reset = '0') then
             temporal <= '0';
             counter  <= 0;
         elsif rising_edge(clk) then

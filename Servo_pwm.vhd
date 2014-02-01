@@ -21,7 +21,7 @@ begin
     pwmi <= unsigned('0' & pos) + 32;
     -- Counter process, from 0 to 1279.
     counter: process (reset, clk) begin
-        if (reset = '1') then
+        if (reset = '0') then
             cnt <= (others => '0');
         elsif rising_edge(clk) then
             if (cnt = 1279) then

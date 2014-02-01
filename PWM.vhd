@@ -35,10 +35,7 @@ architecture rtl of PWM is
 	
 	signal Button0_N, Button0_D : bit1;
 	signal BUtton1_N, Button1_D : bit1;
-	--
-	signal Rst : bit1;
-
-	
+	signal Clk64kHz : bit1;
 begin
 	Btn0Debouncer : entity work.Debounce
 	port map (
@@ -88,11 +85,17 @@ begin
 		Display => Display
 	);
 
-	Rst <= not RstN;
+	Clk64kHzGen : entity work.Clk64kHz
+	port map (
+		clk     => Clk,
+		Reset   => RstN,
+		Clk_out => Clk64kHz
+	);
+	
 	PwmServo : entity work.Servo_pwm
 	port map (
-		Clk   => Clk,
-		Reset => Rst,
+		Clk   => Clk64kHz,
+		Reset => RstN,
 		Pos   => Pos_D,
 		servo => PWM
 	);
