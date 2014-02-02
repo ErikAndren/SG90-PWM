@@ -6,7 +6,7 @@ use ieee.std_logic_unsigned.all;
 entity ClkDiv is
 	generic (
 		SourceFreq : positive;
-		SinkFreq : positive
+		SinkFreq   : positive
 	);
    port (
         clk    : in  STD_LOGIC;

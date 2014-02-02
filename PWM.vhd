@@ -26,16 +26,23 @@ end entity;
 architecture rtl of PWM is
 	signal Btn0Deb : bit1;
 	signal Btn1Deb : bit1;
+	constant Freq : positive := 50000000;
 	
-	constant PwmRes : positive := 128;
-	constant PwmResW : positive := bits(PwmRes);
+	constant PwmRes : positive   := 128;
+	constant PwmResW : positive  := bits(PwmRes);
+	constant MaxPitch : positive := 40;
 	
 	signal Pos_N, Pos_D : word(PwmResW-1 downto 0);
 	signal Data : word(27-1 downto 0);
 	
 	signal Button0_N, Button0_D : bit1;
-	signal BUtton1_N, Button1_D : bit1;
+	signal Button1_N, Button1_D : bit1;
 	signal Clk64kHz : bit1;
+	
+	signal Clk1Hz : bit1;
+	signal OldClk1Hz_D, OldClk1Hz_N : bit1;
+	signal Rising_N, Rising_D : bit1;
+	
 begin
 	Btn0Debouncer : entity work.Debounce
 	port map (
@@ -57,24 +64,57 @@ begin
 			Pos_D <= (others => '0');
 			Button0_D <= '0';
 			Button1_D <= '0';
+			OldClk1Hz_D <= '0';
+			Rising_D <= '1';
 		elsif rising_edge(Clk) then
 			Pos_D <= Pos_N;
 			Button0_D <= Button0_N;
 			Button1_D <= Button1_N;
+			OldClk1Hz_D <= OldClk1Hz_N;
+			Rising_D <= Rising_N;
 		end if;
 	end process;
 	
 	Button0_N <= Btn0Deb;
 	Button1_N <= Btn1Deb;
-
-	Pos_N <= Pos_D + 1 when Btn0Deb = '0' and Pos_D <= 127 and Button0_D = '1' else
-				Pos_D - 1 when Btn1Deb = '0' and Pos_D >= 0 and Button1_D = '1' else Pos_D;
+	
+	OldClk1Hz_N <= Clk1Hz;
+	process (Clk1Hz, Pos_D, OldClk1Hz_D)
+	begin
+		Pos_N <= Pos_D;
+		Rising_N <= Rising_D;
+		
+		if Pos_D = MaxPitch then
+			Rising_N <= '0';
+			Pos_N <= Pos_D - 1;
+		elsif Pos_D = 0 then
+			Rising_N <= '1';
+			Pos_N <= Pos_D + 1;
+		elsif (Clk1Hz = '1' and OldClk1Hz_D = '0') then
+			if Rising_D = '1' then
+				Pos_N <= Pos_D + 1;
+			else
+				Pos_N <= Pos_D - 1;
+			end if;
+		end if;
+	end process;
+	
+	Clk1HzGen : entity work.ClkDiv
+	generic map (
+		SourceFreq => Freq,
+		SinkFreq => 1
+	)
+	port map (
+		clk     => Clk,
+		Reset   => RstN,
+		Clk_out => Clk1Hz
+	);
 	
 	Data <= xt0(Pos_D, Data'length);
 	BcdDispay : entity work.BcdDisp
 	generic map (
 		Displays => 8,
-		Freq     => 50000000
+		Freq     => Freq
 	)
 	port map (
 		Clk => Clk,
@@ -85,7 +125,11 @@ begin
 		Display => Display
 	);
 
-	Clk64kHzGen : entity work.Clk64kHz
+	Clk64kHzGen : entity work.ClkDiv
+	generic map (
+		SourceFreq => Freq,
+		SinkFreq => 32000
+	)
 	port map (
 		clk     => Clk,
 		Reset   => RstN,
