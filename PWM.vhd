@@ -19,7 +19,8 @@ entity PWM is
    Display : out word(Displays-1 downto 0);
    Segments : out word(8-1 downto 0);
 	--
-	PWM : out bit1
+	ServoPitch : out bit1;
+	ServoYaw   : out bit1
 	);
 end entity;
 
@@ -81,7 +82,7 @@ begin
 	OldClk1Hz_N <= Clk1Hz;
 	process (Clk1Hz, Pos_D, OldClk1Hz_D)
 	begin
-		Pos_N <= Pos_D;
+		Pos_N    <= Pos_D;
 		Rising_N <= Rising_D;
 		
 		if Pos_D = MaxPitch then
@@ -136,12 +137,20 @@ begin
 		Clk_out => Clk64kHz
 	);
 	
-	PwmServo : entity work.Servo_pwm
+	PitchServo : entity work.Servo_pwm
 	port map (
 		Clk   => Clk64kHz,
 		Reset => RstN,
 		Pos   => Pos_D,
-		servo => PWM
+		servo => ServoPitch
+	);
+	
+	YawServo : entity work.Servo_pwm
+	port map (
+		Clk   => Clk64kHz,
+		Reset => RstN,
+		Pos   => Pos_D,
+		servo => ServoYaw
 	);
 	
 end architecture rtl;
