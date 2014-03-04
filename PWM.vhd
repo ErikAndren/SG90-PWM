@@ -94,8 +94,10 @@ begin
 		elsif (Clk1Hz = '1' and OldClk1Hz_D = '0') then
 			if Rising_D = '1' then
 				Pos_N <= Pos_D + 1;
+				--Pos_N <= conv_word(MaxPitch, Pos_N'length);
 			else
 				Pos_N <= Pos_D - 1;
+				--Pos_N <= (others => '0');
 			end if;
 		end if;
 	end process;
@@ -129,7 +131,7 @@ begin
 	Clk64kHzGen : entity work.ClkDiv
 	generic map (
 		SourceFreq => Freq,
-		SinkFreq => 32000
+		SinkFreq   => 32000
 	)
 	port map (
 		clk     => Clk,
