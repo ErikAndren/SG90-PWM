@@ -144,7 +144,7 @@ begin
   PitchServo : entity work.Servo_pwm
     port map (
       Clk   => Clk64kHz,
-      Reset => RstN,
+      RstN  => RstN,
       Pos   => Pos_D,
       servo => ServoPitch
       );
@@ -152,7 +152,7 @@ begin
   YawServo : entity work.Servo_pwm
     port map (
       Clk   => Clk64kHz,
-      Reset => RstN,
+      RstN  => RstN,
       Pos   => Pos_D,
       servo => ServoYaw
       );
